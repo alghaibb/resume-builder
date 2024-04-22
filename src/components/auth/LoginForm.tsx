@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 
@@ -14,14 +15,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "../ui/use-toast";
 import CardWrapper from "../CardWrapper";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LoginFormSchema } from "@/form-schemas";
+import { login } from "@/auth-actions/login";
+import LoadingSpinner from "../LoadingSpinner";
 
 const CreateAccountForm = () => {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
   const form = useForm({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
@@ -32,8 +40,30 @@ const CreateAccountForm = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = (data: z.infer<typeof LoginFormSchema>) => {
-    console.log("Data Submitted:", data);
+  const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
+    setLoading(true);
+    try {
+      const res = await login(data);
+      setLoading(false);
+      if (res && res.error) {
+        toast({
+          title: "Login Error",
+          description: res.error,
+          variant: "destructive",
+        });
+      } else {
+        // Redirect to the home page
+        router.push("/");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Login failed:", error);
+      toast({
+        title: "Network Error",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -90,7 +120,7 @@ const CreateAccountForm = () => {
             />
           </div>
           <Button type="submit" className="w-full">
-            Login
+            {loading ? <LoadingSpinner /> : "Login"}
           </Button>
         </form>
       </Form>
