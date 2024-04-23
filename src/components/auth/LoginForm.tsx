@@ -18,16 +18,21 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "../ui/use-toast";
 import CardWrapper from "../CardWrapper";
 
+import { login } from "@/actions/auth-actions/login";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LoginFormSchema } from "@/form-schemas";
-import { login } from "@/auth-actions/login";
 import LoadingSpinner from "../LoadingSpinner";
+import Link from "next/link";
 
 const CreateAccountForm = () => {
-  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+ 
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  
   const router = useRouter();
 
   const form = useForm({
@@ -38,7 +43,6 @@ const CreateAccountForm = () => {
     },
   });
 
-  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
     setLoading(true);
@@ -118,6 +122,9 @@ const CreateAccountForm = () => {
                 </FormItem>
               )}
             />
+            <Button variant="link">
+              <Link href="/forgot-password">Forgot Password?</Link>
+            </Button>
           </div>
           <Button type="submit" className="w-full">
             {loading ? <LoadingSpinner /> : "Login"}

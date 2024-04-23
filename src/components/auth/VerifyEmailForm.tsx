@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { NewVerification } from "@/auth-actions/new-verification";
+import { NewVerification } from "@/actions/auth-actions/new-verification";
 
 import CardWrapper from "../CardWrapper";
 import LoadingSpinner from "../LoadingSpinner";
