@@ -1,10 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 
-import { Button } from "@/components/ui/button";
+import { NewForgotPassword } from "@/actions/auth-actions/new-forgotpassword";
+
+import CardWrapper from "../CardWrapper";
+import LoadingSpinner from "../LoadingSpinner";
+import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -14,59 +20,59 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import CardWrapper from "../CardWrapper";
-import LoadingSpinner from "../LoadingSpinner";
+import { useToast } from "../ui/use-toast";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { RegisterFormSchema } from "@/form-schemas";
-import { register } from "@/actions/auth-actions/create-account";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { set, z } from "zod";
+import { PasswordResetFormSchema } from "@/form-schemas";
 
-const CreateAccountForm = () => {
+const ResetPasswordForm = () => {
+  const router = useRouter();
+
   const { toast } = useToast();
+
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const form = useForm({
-    resolver: zodResolver(RegisterFormSchema),
+    resolver: zodResolver(PasswordResetFormSchema),
     defaultValues: {
-      fullName: "",
-      email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const onSubmit = async (data: z.infer<typeof RegisterFormSchema>) => {
+  const onSubmit = async (data: z.infer<typeof PasswordResetFormSchema>) => {
     setLoading(true);
-    register(data)
-      .then((res) => {
-        setLoading(false);
-        if (res.error) {
-          toast({
-            title: "Registration Error",
-            description: res.error,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Account Created",
-            description:
-              "Your account has been created successfully, please check your email to verify your account.",
-          });
-        }
-      })
-      .catch((res) => {
-        setLoading(false);
+    try {
+      const response = await NewForgotPassword(token ?? "", data.password);
+      if (response.error) {
         toast({
-          title: "Network Error",
-          description: res.error,
+          title: "Reset Error",
+          description: response.error,
           variant: "destructive",
         });
+      } else {
+        toast({
+          title: "Password Reset",
+          description: "Your password has been reset successfully.",
+        });
+        router.push("/login");
+      }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Please try again later.",
+        variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const { handleSubmit } = form;
@@ -81,40 +87,14 @@ const CreateAccountForm = () => {
 
   return (
     <CardWrapper
-      label="Create An Account"
-      title="Create Account"
-      backButtonHref="/login"
-      backButtonLabel="Already with us?"
+      title="Reset Your Password"
+      label="Enter your new password below"
+      backButtonHref=""
+      backButtonLabel=""
     >
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="name" disabled={loading} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="email" disabled={loading} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="password"
@@ -167,14 +147,14 @@ const CreateAccountForm = () => {
                 </FormItem>
               )}
             />
+            <Button type="submit" className="w-full">
+              {loading ? <LoadingSpinner /> : "Reset Password"}
+            </Button>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <LoadingSpinner /> : "Create Account"}
-          </Button>
         </form>
       </Form>
     </CardWrapper>
   );
 };
 
-export default CreateAccountForm;
+export default ResetPasswordForm;
