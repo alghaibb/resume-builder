@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
@@ -24,7 +24,7 @@ import { useToast } from "../ui/use-toast";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, z } from "zod";
+import { z } from "zod";
 import { PasswordResetFormSchema } from "@/form-schemas";
 
 const ResetPasswordForm = () => {
@@ -47,6 +47,13 @@ const ResetPasswordForm = () => {
     },
   });
 
+  // Check if token is valid and not expired
+  useEffect(() => {
+    if (!token) {
+      router.push("/login");
+    }
+  });
+
   const onSubmit = async (data: z.infer<typeof PasswordResetFormSchema>) => {
     setLoading(true);
     try {
@@ -67,7 +74,7 @@ const ResetPasswordForm = () => {
     } catch (error) {
       toast({
         title: "Network Error",
-        description: "Please try again later.",
+        description: (error as Error).message,
         variant: "destructive",
       });
     } finally {
