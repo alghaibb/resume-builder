@@ -9,7 +9,11 @@ const LogoutButton = () => {
     await signOut({ redirect: true, callbackUrl: "/login" });
   };
 
-  return <Button onClick={handleLogout}>Logout</Button>;
+  return (
+    <Button onClick={handleLogout} className="w-full">
+      Logout
+    </Button>
+  );
 };
 
 export default LogoutButton;
