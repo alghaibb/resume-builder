@@ -1,0 +1,27 @@
+.headerLinks {
+  position: relative;
+  cursor: pointer;
+  @apply text-lg;
+  text-decoration: none;
+}
+
+.headerLinks:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -5px;
+  left: 0;
+  @apply bg-primary;
+  transform-origin: bottom left;
+  transition: transform 0.3s ease-out;
+}
+
+.headerLinks:hover:after {
+  transform: scaleX(1);
+}
+
+.activeLinks:after {
+  transform: scaleX(1);
+}
