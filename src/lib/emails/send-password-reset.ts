@@ -33,7 +33,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   `;
 
   await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "noreply@codingwithmj.com",
     to: email,
     subject: "Reset Your Password",
     html: emailHtml
