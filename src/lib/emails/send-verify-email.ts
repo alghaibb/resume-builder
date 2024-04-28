@@ -33,7 +33,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   `;
 
   await resend.emails.send({
-    from: "noreply@codingwithmj.com",
+    from: "noreply@codewithmj.com",
     to: email,
     subject: "Verify Your Email",
     html: emailHtml
