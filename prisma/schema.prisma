@@ -35,3 +35,12 @@ model PasswordResetToken {
 
   @@unique([email, token])
 }
+
+model ContactFormSubmissions {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName  String
+  email     String
+  message   String
+  subject   String
+  createdAt DateTime
+}
